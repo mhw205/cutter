@@ -8,6 +8,11 @@
 #include "common/BinaryTrees.h"
 #include "core/MainWindow.h"
 
+// new code
+#include "SearchDialogWidget.h"
+#include <QtWidgets>
+// end new code
+
 #include <QApplication>
 #include <QScrollBar>
 #include <QJsonArray>
@@ -51,6 +56,18 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
     mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+
+    // New Code
+    // Setup the search dialog toolbar
+    m_dialog = new SearchDialog();
+    // m_dialog->show(); //Search open without ctrl f
+    m_findNext = new QPushButton(tr("&Find"));
+    connect(m_findNext, &QPushButton::clicked, this, &DisassemblyWidget::open_search_window);
+    toolLayout = new QBoxLayout(QBoxLayout::TopToBottom, this);
+    toolLayout->setContentsMargins(1, 1, 1, 1);
+    toolLayout->addWidget(m_dialog);
+    // End new code
+ 
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
     mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
@@ -165,6 +182,12 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
     ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut,
                [this] { mainWindow->showMemoryWidget(MemoryWidgetType::Graph); })
 
+    // New Code
+    // Use ctrl f to search disassembly
+    ADD_ACTION(Qt::CTRL + Qt::Key_F, Qt::WidgetWithChildrenShortcut,
+               &DisassemblyWidget::open_search_window)
+    // End new code
+
     ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
 
     ADD_ACTION(Qt::Key_J, Qt::WidgetWithChildrenShortcut,
@@ -182,7 +205,27 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main)
 #undef ADD_ACTION
 }
 
-void DisassemblyWidget::setPreviewMode(bool previewMode)
+// new code
+void DisassemblyWidget::open_search_window()
+{
+    m_dialog->show();
+
+    if (m_dialog->exec() == QDialog::Accepted) {
+        QString textValue = m_dialog->getFindText();
+
+        /* if (???????.contains(textValue))
+        {
+            Setting a function here to find disassembly values
+        } else {
+            QMessageBox::information(this, tr("No Results Found"),
+                tr("No results found."));
+            return;
+        }*/
+    }
+}
+//end new code
+
+    void DisassemblyWidget::setPreviewMode(bool previewMode)
 {
     mDisasTextEdit->setContextMenuPolicy(previewMode ? Qt::NoContextMenu : Qt::CustomContextMenu);
     mCtxMenu->setEnabled(!previewMode);

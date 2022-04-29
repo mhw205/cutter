@@ -12,6 +12,15 @@
 #include <QShortcut>
 #include <QAction>
 
+// new code
+#include <QFile>
+#include <QFileDialog>
+#include <QDialog>
+#include <QDebug>
+#include <QBoxLayout>
+#include "SearchDialogWidget.h"
+// end new code
+
 #include <vector>
 
 class DisassemblyTextEdit;
@@ -47,6 +56,7 @@ public slots:
     void scrollInstructions(int count);
     void seekPrev();
     void setPreviewMode(bool previewMode);
+    void open_search_window(); // new code
     QFontMetrics getFontMetrics();
     QList<DisassemblyLine> getLines();
 
@@ -70,6 +80,13 @@ private:
     RVA topOffset;
     RVA bottomOffset;
     int maxLines;
+
+    // New code
+    QString m_filename;
+    SearchDialog *m_dialog;
+    QBoxLayout *toolLayout;
+    QPushButton *m_findNext;
+    // End new code
 
     QString curHighlightedWord;
 
